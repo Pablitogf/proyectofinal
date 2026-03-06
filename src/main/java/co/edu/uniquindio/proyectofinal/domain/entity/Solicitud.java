@@ -83,13 +83,16 @@ public class Solicitud {
         this.fechaModificacion = LocalDateTime.now();
     }
 
-
     public void clasificar(Prioridad prioridad, TipoSolicitud tipo, String usuario) {
+
         validarNoCerrada();
         validarEstadoEsperado(EstadoSolicitud.CREADA, "clasificar");
 
         if (prioridad == null || tipo == null)
             throw new ReglaDominioException("Prioridad y tipo son obligatorios");
+
+        if (usuario == null || usuario.isBlank())
+            throw new ReglaDominioException("Usuario que clasifica es obligatorio");
 
         this.prioridad = prioridad;
         this.tipo = tipo;
@@ -100,7 +103,6 @@ public class Solicitud {
                 usuario
         );
     }
-
 
     public void asignarResponsable(Usuario responsable, String usuario) {
         validarNoCerrada();
@@ -124,6 +126,23 @@ public class Solicitud {
         );
     }
 
+    public void priorizar(Prioridad nuevaPrioridad, String usuario) {
+
+        validarNoCerrada();
+
+        if (nuevaPrioridad == null)
+            throw new ReglaDominioException("La prioridad es obligatoria");
+
+        if (usuario == null || usuario.isBlank())
+            throw new ReglaDominioException("Usuario que prioriza es obligatorio");
+
+        this.prioridad = nuevaPrioridad;
+
+        registrarHistorial(
+                "Prioridad cambiada a " + nuevaPrioridad,
+                usuario
+        );
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -137,7 +156,6 @@ public class Solicitud {
     public int hashCode() {
         return Objects.hash(id);
     }
-
 
     public static class Builder {
 
@@ -177,6 +195,13 @@ public class Solicitud {
                 throw new ReglaDominioException("El solicitante es obligatorio");
 
             return new Solicitud(this);
+        }
+
+        public static Solicitud registrar(String descripcion, Usuario solicitante) {
+            return new Builder()
+                    .descripcion(descripcion)
+                    .solicitante(solicitante)
+                    .build();
         }
     }
 }

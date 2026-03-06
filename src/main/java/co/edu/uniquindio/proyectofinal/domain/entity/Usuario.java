@@ -26,16 +26,7 @@ public class Usuario {
         setRol(rolUser);
     }
 
-    // Constructor para reconstruir desde BD (con ID existente)
-    public Usuario(String id, String nombre, Email email, TipoUser rolUser) {
-        this.id = id;
-        this.nombre = nombre;
-        this.email = email;
-        this.rolUser = rolUser;
-    }
-
     // Métodos de negocio para cambiar el estado (con validaciones)
-
     public void cambiarNombre(String nuevoNombre) {
         if (nuevoNombre == null || nuevoNombre.isBlank()) {
             throw new ReglaDominioException("El nombre no puede ser nulo o vacío");

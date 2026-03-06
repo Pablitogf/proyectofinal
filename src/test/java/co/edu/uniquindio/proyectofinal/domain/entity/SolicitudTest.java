@@ -24,37 +24,82 @@ class SolicitudTest {
     }
 
     @Test
-    void crearSolicitudConDatosValidos() {
+    void crearSolicitudCorrectamente() {
 
+        // Verifica que una solicitud se cree con datos válidos
         Solicitud solicitud = crearSolicitud();
 
-        // Si la solicitud no genera un ID automáticamente, el test falla
         assertNotNull(solicitud.getId());
-
-        // Si el estado inicial no es CREADA, el test falla
-        assertEquals(EstadoSolicitud.CREADA, solicitud.getEstado());
-
-        // Si se cambia o elimina la descripción, el test falla
-        assertEquals("Problema con matrícula", solicitud.getDescripcion());
-
-        // Si el código automático no se genera, el test falla
         assertNotNull(solicitud.getCodigo());
+        assertEquals(EstadoSolicitud.CREADA, solicitud.getEstado());
+        assertEquals("Problema con matrícula", solicitud.getDescripcion());
     }
 
     @Test
-    void noPermiteSolicitudesSinDescripcion() {
+    void noPermiteCrearSolicitudSinDescripcion() {
 
-        // Si el Builder permite crear una solicitud sin descripción, el test falla
-        assertThrows(ReglaDominioException.class, () -> {
-            new Solicitud.Builder()
-                    .solicitante(crearUsuario())
-                    .build();
-        });
+        // Verifica que no se pueda crear sin descripción
+        assertThrows(ReglaDominioException.class, () ->
+                new Solicitud.Builder()
+                        .solicitante(crearUsuario())
+                        .build()
+        );
     }
 
     @Test
-    void asignarResponsableCambiaEstado() {
+    void noPermiteCrearSolicitudSinSolicitante() {
 
+        // Verifica que el solicitante sea obligatorio
+        assertThrows(ReglaDominioException.class, () ->
+                new Solicitud.Builder()
+                        .descripcion("Test")
+                        .build()
+        );
+    }
+
+    @Test
+    void clasificarSolicitudCorrectamente() {
+
+        // Verifica que clasificar cambie estado, prioridad y tipo
+        Solicitud solicitud = crearSolicitud();
+
+        solicitud.clasificar(
+                Prioridad.MEDIA,
+                TipoSolicitud.CERTIFICADO,
+                "coordinador"
+        );
+
+        assertEquals(EstadoSolicitud.CLASIFICADA, solicitud.getEstado());
+        assertEquals(Prioridad.MEDIA, solicitud.getPrioridad());
+        assertEquals(TipoSolicitud.CERTIFICADO, solicitud.getTipo());
+    }
+
+    @Test
+    void noPermiteClasificarSinPrioridad() {
+
+        // Verifica que la prioridad sea obligatoria
+        Solicitud solicitud = crearSolicitud();
+
+        assertThrows(ReglaDominioException.class, () ->
+                solicitud.clasificar(null, TipoSolicitud.CERTIFICADO, "coord")
+        );
+    }
+
+    @Test
+    void noPermiteClasificarSinTipo() {
+
+        // Verifica que el tipo sea obligatorio
+        Solicitud solicitud = crearSolicitud();
+
+        assertThrows(ReglaDominioException.class, () ->
+                solicitud.clasificar(Prioridad.ALTA, null, "coord")
+        );
+    }
+
+    @Test
+    void asignarResponsableCorrectamente() {
+
+        // Verifica que asignar responsable cambie el estado
         Solicitud solicitud = crearSolicitud();
 
         Usuario responsable = new Usuario(
@@ -66,10 +111,31 @@ class SolicitudTest {
         solicitud.clasificar(Prioridad.MEDIA, TipoSolicitud.CERTIFICADO, "coord");
         solicitud.asignarResponsable(responsable, "coord");
 
-        // Si el estado no cambia a ASIGNADA después de asignar responsable, el test falla
         assertEquals(EstadoSolicitud.ASIGNADA, solicitud.getEstado());
-
-        // Si el responsable no queda asignado correctamente, el test falla
         assertEquals(responsable, solicitud.getResponsable());
+    }
+
+    @Test
+    void noPermiteAsignarResponsableNulo() {
+
+        // Verifica que el responsable no pueda ser nulo
+        Solicitud solicitud = crearSolicitud();
+
+        solicitud.clasificar(Prioridad.MEDIA, TipoSolicitud.CERTIFICADO, "coord");
+
+        assertThrows(ReglaDominioException.class, () ->
+                solicitud.asignarResponsable(null, "coord")
+        );
+    }
+
+    @Test
+    void priorizarSolicitudCorrectamente() {
+
+        // Verifica que una solicitud pueda cambiar su prioridad correctamente
+        Solicitud solicitud = crearSolicitud();
+
+        solicitud.priorizar(Prioridad.CRITICA, "coordinador");
+
+        assertEquals(Prioridad.CRITICA, solicitud.getPrioridad());
     }
 }
