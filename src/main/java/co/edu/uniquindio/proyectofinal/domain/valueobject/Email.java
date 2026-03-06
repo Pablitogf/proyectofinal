@@ -1,6 +1,6 @@
 package co.edu.uniquindio.proyectofinal.domain.valueobject;
 
-import co.edu.uniquindio.solicitudes.domain.exception.ReglaDominioException;
+import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
 
 /**
  * Value Object que representa un correo electrónico.

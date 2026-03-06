@@ -1,6 +1,6 @@
 package co.edu.uniquindio.proyectofinal.domain.service;
 
-import co.edu.uniquindio.solicitudes.domain.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
 
 import java.util.List;
 

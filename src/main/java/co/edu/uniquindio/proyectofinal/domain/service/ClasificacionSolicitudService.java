@@ -1,9 +1,9 @@
 package co.edu.uniquindio.proyectofinal.domain.service;
 
-import co.edu.uniquindio.solicitudes.domain.entity.Solicitud;
-import co.edu.uniquindio.solicitudes.domain.entity.Usuario;
-import co.edu.uniquindio.solicitudes.domain.exception.ReglaDominioException;
-import co.edu.uniquindio.solicitudes.domain.valueobject.TipoSolicitud;
+import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
+import co.edu.uniquindio.proyectofinal.domain.valueobject.TipoSolicitud;
 
 /**
  * Servicio de Dominio: ClasificacionSolicitudService
