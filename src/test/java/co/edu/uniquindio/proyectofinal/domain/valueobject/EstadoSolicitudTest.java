@@ -18,12 +18,14 @@ class EstadoSolicitudTest {
         );
 
         Solicitud solicitud = new Solicitud.Builder()
-                .codigo(new CodigoSolicitud("SOL-01"))
                 .descripcion("Solicitud de certificado")
                 .solicitante(usuario)
                 .build();
 
+        // Si la solicitud se crea sin estado, el test falla
         assertNotNull(solicitud.getEstado());
+
+        // Si el estado inicial no es CREADA, el test falla
         assertEquals(EstadoSolicitud.CREADA, solicitud.getEstado());
     }
 }

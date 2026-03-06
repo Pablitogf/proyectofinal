@@ -4,7 +4,7 @@ import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
 
 /**
  * Value Object que representa un código único de solicitud.
- * Ejemplo de formato: SOL-2024-0001
+ * Formato: SOL-0001, SOL-0002, SOL-0003...
  */
 public record CodigoSolicitud(String valor) {
 
@@ -12,9 +12,15 @@ public record CodigoSolicitud(String valor) {
         if (valor == null || valor.isBlank()) {
             throw new ReglaDominioException("El código de solicitud no puede ser nulo o vacío");
         }
-        // Ejemplo de validación de formato (puede ajustarse)
-        if (!valor.matches("^SOL-\\d{4}-\\d{4}$")) {
-            throw new ReglaDominioException("El formato del código de solicitud es inválido. Debe ser SOL-YYYY-XXXX");
+
+        // Formato SOL-0001
+        if (!valor.matches("^SOL-\\d{4}$")) {
+            throw new ReglaDominioException("El formato del código es inválido. Debe ser SOL-0001");
         }
+    }
+
+    @Override
+    public String toString() {
+        return valor;
     }
 }

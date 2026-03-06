@@ -9,13 +9,17 @@ class EmailTest {
 
     @Test
     void crearEmailValido() {
+
         Email email = new Email("pablo@uniquindio.edu.co");
 
+        // Si el email guardado en el objeto no coincide con el creado, el test falla
         assertEquals("pablo@uniquindio.edu.co", email.direccion());
     }
 
     @Test
     void noPermitirEmailNulo() {
+
+        // Si la clase permite crear un email con valor null, el test falla
         assertThrows(ReglaDominioException.class, () -> {
             new Email(null);
         });
@@ -23,6 +27,8 @@ class EmailTest {
 
     @Test
     void emailDebeContenerArroba() {
+
+        // Si el email no contiene '@' y aun así se crea el objeto, el test falla
         assertThrows(ReglaDominioException.class, () -> {
             new Email("pablouniquindio.edu.co");
         });
