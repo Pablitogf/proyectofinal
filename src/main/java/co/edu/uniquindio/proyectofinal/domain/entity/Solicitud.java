@@ -2,6 +2,7 @@ package co.edu.uniquindio.proyectofinal.domain.entity;
 
 import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
 import co.edu.uniquindio.proyectofinal.domain.valueobject.*;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.UUID;
 /**
  * AGREGADO RAIZ: Solicitud
  */
+@Getter
 public class Solicitud {
     private final String id;
     private final CodigoSolicitud codigo;
@@ -87,68 +89,6 @@ public class Solicitud {
         registrarHistorial("Responsable asignado: " + responsable.getNombre(), usuario);
     }
 
-    public void iniciarAtencion(String usuario) {
-        validarNoCerrada();
-        validarTieneResponsable("iniciar atención");
-        validarEstadoEsperado(EstadoSolicitud.ASIGNADA, "iniciar atención");
-        this.estado = EstadoSolicitud.EN_ATENCION;
-        registrarHistorial("Atención iniciada", usuario);
-    }
-
-    public void finalizarAtencion(String usuario) {
-        validarNoCerrada();
-        validarTieneResponsable("finalizar atención");
-        validarEstadoEsperado(EstadoSolicitud.EN_ATENCION, "finalizar atención");
-        this.estado = EstadoSolicitud.ATENDIDA;
-        registrarHistorial("Atención finalizada", usuario);
-    }
-
-    public void cerrar(String usuario) {
-        validarTieneResponsable("cerrar");
-        validarEstadoEsperado(EstadoSolicitud.ATENDIDA, "cerrar");
-        this.estado = EstadoSolicitud.CERRADA;
-        this.fechaCierre = LocalDateTime.now();
-        registrarHistorial("Solicitud cerrada", usuario);
-    }
-
-    public void reabrir(String motivo, String usuario) {
-        validarEstadoEsperado(EstadoSolicitud.CERRADA, "reabrir");
-        if (motivo == null || motivo.isBlank())
-            throw new ReglaDominioException("Motivo es obligatorio");
-        this.estado = EstadoSolicitud.ATENDIDA;
-        this.fechaCierre = null;
-        registrarHistorial("Reabierta: " + motivo, usuario);
-    }
-
-    public void actualizarPrioridad(Prioridad nuevaPrioridad, String usuario) {
-        validarNoCerrada();
-        if (nuevaPrioridad == null)
-            throw new ReglaDominioException("Prioridad no puede ser nula");
-        this.prioridad = nuevaPrioridad;
-        registrarHistorial("Prioridad actualizada a " + nuevaPrioridad, usuario);
-    }
-
-    public void agregarComentario(String comentario, String usuario) {
-        validarNoCerrada();
-        if (comentario == null || comentario.isBlank())
-            throw new ReglaDominioException("Comentario no puede estar vacío");
-        registrarHistorial("Comentario: " + comentario, usuario);
-    }
-
-    // Getters
-    public String getId() { return id; }
-    public CodigoSolicitud getCodigo() { return codigo; }
-    public String getDescripcion() { return descripcion; }
-    public Usuario getSolicitante() { return solicitante; }
-    public EstadoSolicitud getEstado() { return estado; }
-    public Prioridad getPrioridad() { return prioridad; }
-    public TipoSolicitud getTipo() { return tipo; }
-    public Usuario getResponsable() { return responsable; }
-    public LocalDateTime getFechaCreacion() { return fechaCreacion; }
-    public LocalDateTime getFechaModificacion() { return fechaModificacion; }
-    public LocalDateTime getFechaCierre() { return fechaCierre; }
-    public List<HistorialSolicitud> getHistorial() { return List.copyOf(historial); }
-    public boolean estaCerrada() { return EstadoSolicitud.CERRADA.equals(estado); }
 
     @Override
     public boolean equals(Object o) {
@@ -161,24 +101,49 @@ public class Solicitud {
     @Override
     public int hashCode() { return Objects.hash(id); }
 
-    // Builder
     public static class Builder {
+
         private CodigoSolicitud codigo;
         private String descripcion;
         private Usuario solicitante;
-        private Prioridad prioridad = Prioridad.MEDIA;
-        private TipoSolicitud tipo = TipoSolicitud.OTRO;
+        private Prioridad prioridad;
+        private TipoSolicitud tipo;
 
-        public Builder conCodigo(CodigoSolicitud codigo) { this.codigo = codigo; return this; }
-        public Builder conDescripcion(String descripcion) { this.descripcion = descripcion; return this; }
-        public Builder conSolicitante(Usuario solicitante) { this.solicitante = solicitante; return this; }
-        public Builder conPrioridad(Prioridad prioridad) { this.prioridad = prioridad; return this; }
-        public Builder conTipo(TipoSolicitud tipo) { this.tipo = tipo; return this; }
+        public Builder codigo(CodigoSolicitud codigo) {
+            this.codigo = codigo;
+            return this;
+        }
+
+        public Builder descripcion(String descripcion) {
+            this.descripcion = descripcion;
+            return this;
+        }
+
+        public Builder solicitante(Usuario solicitante) {
+            this.solicitante = solicitante;
+            return this;
+        }
+
+        public Builder prioridad(Prioridad prioridad) {
+            this.prioridad = prioridad;
+            return this;
+        }
+
+        public Builder tipo(TipoSolicitud tipo) {
+            this.tipo = tipo;
+            return this;
+        }
 
         public Solicitud build() {
-            if (codigo == null) throw new ReglaDominioException("Código obligatorio");
-            if (descripcion == null || descripcion.isBlank()) throw new ReglaDominioException("Descripción obligatoria");
-            if (solicitante == null) throw new ReglaDominioException("Solicitante obligatorio");
+            if (codigo == null)
+                throw new ReglaDominioException("El código es obligatorio");
+
+            if (descripcion == null || descripcion.isBlank())
+                throw new ReglaDominioException("La descripción es obligatoria");
+
+            if (solicitante == null)
+                throw new ReglaDominioException("El solicitante es obligatorio");
+
             return new Solicitud(this);
         }
     }

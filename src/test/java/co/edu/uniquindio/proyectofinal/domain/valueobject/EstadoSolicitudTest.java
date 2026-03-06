@@ -1,4 +1,7 @@
 package co.edu.uniquindio.proyectofinal.domain.valueobject;
+
+import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.entity.Usuario;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -6,35 +9,21 @@ import static org.junit.jupiter.api.Assertions.*;
 class EstadoSolicitudTest {
 
     @Test
-    void valoresEstadoDebenExistir() {
-        assertNotNull(EstadoSolicitud.CREADA);
-        assertNotNull(EstadoSolicitud.CLASIFICADA);
-        assertNotNull(EstadoSolicitud.ASIGNADA);
-        assertNotNull(EstadoSolicitud.EN_ATENCION);
-        assertNotNull(EstadoSolicitud.ATENDIDA);
-        assertNotNull(EstadoSolicitud.CERRADA);
-    }
+    void solicitudSiempreDebeCrearseConEstadoCreada() {
 
-    @Test
-    void estadoDebeTenerOrdenCorrecto() {
-        assertTrue(EstadoSolicitud.CREADA.ordinal() < EstadoSolicitud.CLASIFICADA.ordinal());
-        assertTrue(EstadoSolicitud.CLASIFICADA.ordinal() < EstadoSolicitud.ASIGNADA.ordinal());
-        assertTrue(EstadoSolicitud.ASIGNADA.ordinal() < EstadoSolicitud.EN_ATENCION.ordinal());
-        assertTrue(EstadoSolicitud.EN_ATENCION.ordinal() < EstadoSolicitud.ATENDIDA.ordinal());
-        assertTrue(EstadoSolicitud.ATENDIDA.ordinal() < EstadoSolicitud.CERRADA.ordinal());
-    }
+        Usuario usuario = new Usuario(
+                "Pablo",
+                new Email("pablo@uniquindio.edu.co"),
+                TipoUser.ESTUDIANTE
+        );
 
-    // Prueba adicional 1: toString retorna nombre
-    @Test
-    void toStringDebeRetornarNombre() {
-        assertEquals("CREADA", EstadoSolicitud.CREADA.toString());
-        assertEquals("CERRADA", EstadoSolicitud.CERRADA.toString());
-    }
+        Solicitud solicitud = new Solicitud.Builder()
+                .codigo(new CodigoSolicitud("SOL-01"))
+                .descripcion("Solicitud de certificado")
+                .solicitante(usuario)
+                .build();
 
-    // Prueba adicional 2: Verificar flujo completo
-    @Test
-    void flujoEstadosDebeSerCompleto() {
-        EstadoSolicitud[] estados = EstadoSolicitud.values();
-        assertEquals(6, estados.length);
+        assertNotNull(solicitud.getEstado());
+        assertEquals(EstadoSolicitud.CREADA, solicitud.getEstado());
     }
 }

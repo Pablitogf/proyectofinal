@@ -12,7 +12,7 @@ public record Email(String direccion) {
             throw new ReglaDominioException("El email no puede ser nulo o vacío");
         }
         // Validación simple de formato de email
-        if (!direccion.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+        if (!direccion.matches("@")) {
             throw new ReglaDominioException("El formato del email no es válido");
         }
     }

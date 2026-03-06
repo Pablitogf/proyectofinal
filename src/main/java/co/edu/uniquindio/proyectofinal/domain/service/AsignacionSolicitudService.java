@@ -12,11 +12,11 @@ public class AsignacionSolicitudService {
 
     public void asignar(Solicitud solicitud, Usuario responsable, Usuario asignador) {
         // Validacion cruzada: roles
-        if (!"COORDINADOR".equals(asignador.getRol())) {
+        if (!"COORDINADOR".equals(asignador.getRolUser())) {
             throw new ReglaDominioException("Solo coordinadores pueden asignar solicitudes");
         }
 
-        if (!"DOCENTE".equals(responsable.getRol()) && !"COORDINADOR".equals(responsable.getRol())) {
+        if (!"DOCENTE".equals(responsable.getRolUser()) && !"COORDINADOR".equals(responsable.getRolUser())) {
             throw new ReglaDominioException("El responsable debe ser docente o coordinador");
         }
 
