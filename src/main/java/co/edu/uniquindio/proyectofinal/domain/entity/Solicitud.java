@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * AGREGADO RAIZ: Solicitud
@@ -18,17 +17,19 @@ public class Solicitud {
 
     private static int contador = 1;
 
-    private final String id;
     private final CodigoSolicitud codigo;
     private final String descripcion;
     private final Usuario solicitante;
+
     private EstadoSolicitud estado;
     private Prioridad prioridad;
     private TipoSolicitud tipo;
     private Usuario responsable;
+
     private final LocalDateTime fechaCreacion;
     private LocalDateTime fechaModificacion;
     private LocalDateTime fechaCierre;
+
     private final List<HistorialSolicitud> historial = new ArrayList<>();
 
 
@@ -39,17 +40,20 @@ public class Solicitud {
 
 
     private Solicitud(Builder builder) {
-        this.id = UUID.randomUUID().toString();
+
         this.codigo = generarCodigo();
         this.descripcion = builder.descripcion;
         this.solicitante = builder.solicitante;
+
         this.estado = EstadoSolicitud.CREADA;
+
         this.prioridad = builder.prioridad;
         this.tipo = builder.tipo;
+
         this.fechaCreacion = LocalDateTime.now();
         this.fechaModificacion = this.fechaCreacion;
 
-        registrarHistorial("Solicitud creada", "SISTEMA");
+        registrarHistorial("Solicitud creada", solicitante);
     }
 
 
@@ -78,12 +82,13 @@ public class Solicitud {
     }
 
 
-    private void registrarHistorial(String accion, String usuario) {
+    private void registrarHistorial(String accion, Usuario usuario) {
         historial.add(new HistorialSolicitud(LocalDateTime.now(), usuario, accion, this.estado));
         this.fechaModificacion = LocalDateTime.now();
     }
 
-    public void clasificar(Prioridad prioridad, TipoSolicitud tipo, String usuario) {
+
+    public void clasificar(Prioridad prioridad, TipoSolicitud tipo, Usuario usuario) {
 
         validarNoCerrada();
         validarEstadoEsperado(EstadoSolicitud.CREADA, "clasificar");
@@ -91,7 +96,7 @@ public class Solicitud {
         if (prioridad == null || tipo == null)
             throw new ReglaDominioException("Prioridad y tipo son obligatorios");
 
-        if (usuario == null || usuario.isBlank())
+        if (usuario == null)
             throw new ReglaDominioException("Usuario que clasifica es obligatorio");
 
         this.prioridad = prioridad;
@@ -104,7 +109,9 @@ public class Solicitud {
         );
     }
 
-    public void asignarResponsable(Usuario responsable, String usuario) {
+
+    public void asignarResponsable(Usuario responsable, Usuario usuario) {
+
         validarNoCerrada();
         validarEstadoPermitido(
                 List.of(EstadoSolicitud.CLASIFICADA, EstadoSolicitud.ASIGNADA),
@@ -126,14 +133,15 @@ public class Solicitud {
         );
     }
 
-    public void priorizar(Prioridad nuevaPrioridad, String usuario) {
+
+    public void priorizar(Prioridad nuevaPrioridad, Usuario usuario) {
 
         validarNoCerrada();
 
         if (nuevaPrioridad == null)
             throw new ReglaDominioException("La prioridad es obligatoria");
 
-        if (usuario == null || usuario.isBlank())
+        if (usuario == null)
             throw new ReglaDominioException("Usuario que prioriza es obligatorio");
 
         this.prioridad = nuevaPrioridad;
@@ -144,18 +152,19 @@ public class Solicitud {
         );
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Solicitud solicitud = (Solicitud) o;
-        return Objects.equals(id, solicitud.id);
+        if (!(o instanceof Solicitud solicitud)) return false;
+        return Objects.equals(codigo, solicitud.codigo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(codigo);
     }
+
 
     public static class Builder {
 
@@ -163,7 +172,6 @@ public class Solicitud {
         private Usuario solicitante;
         private Prioridad prioridad;
         private TipoSolicitud tipo;
-
 
         public Builder descripcion(String descripcion) {
             this.descripcion = descripcion;
@@ -184,7 +192,6 @@ public class Solicitud {
             this.tipo = tipo;
             return this;
         }
-
 
         public Solicitud build() {
 

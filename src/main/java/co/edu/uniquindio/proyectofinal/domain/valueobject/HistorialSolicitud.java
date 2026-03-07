@@ -1,5 +1,8 @@
 package co.edu.uniquindio.proyectofinal.domain.valueobject;
 
+import co.edu.uniquindio.proyectofinal.domain.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
+
 import java.time.LocalDateTime;
 
 /**
@@ -8,28 +11,33 @@ import java.time.LocalDateTime;
  */
 public record HistorialSolicitud(
         LocalDateTime fecha,
-        String usuario,
+        Usuario usuario,
         String accion,
         EstadoSolicitud estadoResultante
 ) {
     public HistorialSolicitud {
         if (fecha == null) {
-            throw new IllegalArgumentException("La fecha no puede ser nula");
+            throw new ReglaDominioException("La fecha no puede ser nula");
         }
-        if (usuario == null || usuario.isBlank()) {
-            throw new IllegalArgumentException("El usuario no puede ser nulo o vacío");
+        if (usuario == null) {
+            throw new ReglaDominioException("El usuario no puede ser nulo");
         }
         if (accion == null || accion.isBlank()) {
-            throw new IllegalArgumentException("La acción no puede ser nula o vacía");
+            throw new ReglaDominioException("La acción no puede ser nula o vacía");
         }
         if (estadoResultante == null) {
-            throw new IllegalArgumentException("El estado resultante no puede ser nulo");
+            throw new ReglaDominioException("El estado resultante no puede ser nulo");
         }
     }
 
     @Override
     public String toString() {
-        return String.format("[%s] %s - %s (Estado: %s)",
-                fecha, usuario, accion, estadoResultante);
+        return String.format(
+                "[%s] Usuario: %s | Acción: %s | Estado: %s",
+                fecha,
+                usuario.getNombre(),
+                accion,
+                estadoResultante
+        );
     }
 }

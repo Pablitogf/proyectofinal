@@ -66,7 +66,7 @@ public class Usuario {
 
     private void setRol(TipoUser rolUser) {
         if (rolUser == null) {
-            throw new ReglaDominioException("El rol no puede ser nulo o vacío");
+            throw new ReglaDominioException("El rol no puede ser nulo");
         }
         this.rolUser = rolUser;
     }
