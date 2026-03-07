@@ -3,6 +3,7 @@ package co.edu.uniquindio.proyectofinal.domain.entity;
 import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
 import co.edu.uniquindio.proyectofinal.domain.valueobject.*;
 import lombok.Getter;
+import co.edu.uniquindio.proyectofinal.domain.valueobject.EstadoSolicitud;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,33 +29,50 @@ public class Solicitud {
     private LocalDateTime fechaCierre;
     private final List<HistorialSolicitud> historial = new ArrayList<>();
 
+    public void iniciarAtencion(String usuario) {
+        validarNoCerrada();
+        // Usamos CREADA o CLASIFICADA según lo que tengas en tu enum
+        validarEstadoPermitido(List.of(EstadoSolicitud.CLASIFICADA, EstadoSolicitud.ASIGNADA), "iniciar atención");
+        validarTieneResponsable("iniciar atención");
+
+        this.estado = EstadoSolicitud.EN_ATENCION;
+        registrarHistorial("El responsable ha iniciado la gestión", usuario);
+    }
+
+    public void finalizarAtencion(String usuario) {
+        validarEstadoEsperado(EstadoSolicitud.EN_ATENCION, "finalizar atención");
+        this.estado = EstadoSolicitud.ATENDIDA;
+        registrarHistorial("Trámite completado por el responsable", usuario);
+    }
+
+    public void cerrar(String usuario) {
+        validarEstadoEsperado(EstadoSolicitud.ATENDIDA, "cerrar");
+        this.estado = EstadoSolicitud.CERRADA;
+        this.fechaCierre = LocalDateTime.now();
+        registrarHistorial("Solicitud cerrada formalmente", usuario);
+    }
+
+
+
     private Solicitud(Builder builder) {
         this.id = UUID.randomUUID().toString();
         this.codigo = builder.codigo;
         this.descripcion = builder.descripcion;
         this.solicitante = builder.solicitante;
-        this.estado = EstadoSolicitud.CREADA;
-        this.prioridad = builder.prioridad;
-        this.tipo = builder.tipo;
+        this.estado = EstadoSolicitud.CREADA; // RF-04: Estado inicial según guía
         this.fechaCreacion = LocalDateTime.now();
         this.fechaModificacion = this.fechaCreacion;
-        registrarHistorial("Solicitud creada", "SISTEMA");
+        // RF-06: Registro automático inicial
+        registrarHistorial("Solicitud registrada en el sistema", "SISTEMA");
     }
 
-    private void validarNoCerrada() {
-        if (EstadoSolicitud.CERRADA.equals(this.estado))
-            throw new ReglaDominioException("Solicitud cerrada no puede modificarse");
+
+
+    // RF-06: Getter seguro que devuelve una copia para evitar .add() externos
+    public List<HistorialSolicitud> getHistorial() {
+        return List.copyOf(this.historial);
     }
 
-    private void validarEstadoEsperado(EstadoSolicitud esperado, String accion) {
-        if (!this.estado.equals(esperado))
-            throw new ReglaDominioException(String.format("No se puede %s - Estado actual: %s", accion, this.estado));
-    }
-
-    private void validarEstadoPermitido(List<EstadoSolicitud> permitidos, String accion) {
-        if (!permitidos.contains(this.estado))
-            throw new ReglaDominioException(String.format("No se puede %s - Estado actual: %s", accion, this.estado));
-    }
 
     private void validarTieneResponsable(String accion) {
         if (this.responsable == null)
@@ -90,6 +108,9 @@ public class Solicitud {
     }
 
 
+
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -98,8 +119,26 @@ public class Solicitud {
         return Objects.equals(id, solicitud.id);
     }
 
+
     @Override
     public int hashCode() { return Objects.hash(id); }
+
+
+    private void validarNoCerrada() {
+        if (EstadoSolicitud.CERRADA.equals(estado))
+            throw new ReglaDominioException("Solicitud cerrada no puede modificarse");
+    }
+
+    private void validarEstadoEsperado(EstadoSolicitud esperado, String accion) {
+        if (!this.estado.equals(esperado))
+            throw new ReglaDominioException(String.format("No se puede %s - Estado actual: %s", accion, this.estado));
+    }
+
+    private void validarEstadoPermitido(List<EstadoSolicitud> permitidos, String accion) {
+        if (!permitidos.contains(this.estado))
+            throw new ReglaDominioException(String.format("No se puede %s - Estado actual: %s", accion, this.estado));
+    }
+
 
     public static class Builder {
 
@@ -146,5 +185,13 @@ public class Solicitud {
 
             return new Solicitud(this);
         }
+
+
+
+
+
     }
+
+
+
 }
