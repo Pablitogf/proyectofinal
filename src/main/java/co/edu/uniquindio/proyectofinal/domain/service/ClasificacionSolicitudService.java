@@ -20,7 +20,7 @@ public class ClasificacionSolicitudService {
 
         // Decisión: la prioridad se asigna según tipo y solicitante
         var prioridad = determinarPrioridad(solicitud, tipo);
-        solicitud.clasificar(prioridad, tipo, coordinador.getNombre());
+        solicitud.clasificar(prioridad, tipo, coordinador);
     }
 
     private co.edu.uniquindio.proyectofinal.domain.valueobject.Prioridad determinarPrioridad(

@@ -20,6 +20,6 @@ public class AsignacionSolicitudService {
             throw new ReglaDominioException("El responsable debe ser docente o coordinador");
         }
 
-        solicitud.asignarResponsable(responsable, asignador.getNombre());
+        solicitud.asignarResponsable(responsable, asignador);
     }
 }
