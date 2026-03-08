@@ -9,6 +9,7 @@ public enum TipoSolicitud {
     CANCELACION_SEMESTRE,
     SUPLETORIO,
     CERTIFICADO,
+    SOPORTE,
     OTRO;
 
     @Override

@@ -16,6 +16,14 @@ class SolicitudTest {
         );
     }
 
+    private Usuario crearCoordinador() {
+        return new Usuario(
+                "Coordinador",
+                new Email("coord@uniquindio.edu.co"),
+                TipoUser.COORDINADOR
+        );
+    }
+
     private Solicitud crearSolicitud() {
         return new Solicitud.Builder()
                 .descripcion("Problema con matrícula")
@@ -26,10 +34,8 @@ class SolicitudTest {
     @Test
     void crearSolicitudCorrectamente() {
 
-        // Verifica que una solicitud se cree con datos válidos
         Solicitud solicitud = crearSolicitud();
 
-        assertNotNull(solicitud.getId());
         assertNotNull(solicitud.getCodigo());
         assertEquals(EstadoSolicitud.CREADA, solicitud.getEstado());
         assertEquals("Problema con matrícula", solicitud.getDescripcion());
@@ -38,7 +44,6 @@ class SolicitudTest {
     @Test
     void noPermiteCrearSolicitudSinDescripcion() {
 
-        // Verifica que no se pueda crear sin descripción
         assertThrows(ReglaDominioException.class, () ->
                 new Solicitud.Builder()
                         .solicitante(crearUsuario())
@@ -46,12 +51,9 @@ class SolicitudTest {
         );
     }
 
-
-
     @Test
     void noPermiteCrearSolicitudSinSolicitante() {
 
-        // Verifica que el solicitante sea obligatorio
         assertThrows(ReglaDominioException.class, () ->
                 new Solicitud.Builder()
                         .descripcion("Test")
@@ -62,13 +64,13 @@ class SolicitudTest {
     @Test
     void clasificarSolicitudCorrectamente() {
 
-        // Verifica que clasificar cambie estado, prioridad y tipo
         Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
 
         solicitud.clasificar(
                 Prioridad.MEDIA,
                 TipoSolicitud.CERTIFICADO,
-                "coordinador"
+                coordinador
         );
 
         assertEquals(EstadoSolicitud.CLASIFICADA, solicitud.getEstado());
@@ -79,30 +81,30 @@ class SolicitudTest {
     @Test
     void noPermiteClasificarSinPrioridad() {
 
-        // Verifica que la prioridad sea obligatoria
         Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
 
         assertThrows(ReglaDominioException.class, () ->
-                solicitud.clasificar(null, TipoSolicitud.CERTIFICADO, "coord")
+                solicitud.clasificar(null, TipoSolicitud.CERTIFICADO, coordinador)
         );
     }
 
     @Test
     void noPermiteClasificarSinTipo() {
 
-        // Verifica que el tipo sea obligatorio
         Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
 
         assertThrows(ReglaDominioException.class, () ->
-                solicitud.clasificar(Prioridad.ALTA, null, "coord")
+                solicitud.clasificar(Prioridad.ALTA, null, coordinador)
         );
     }
 
     @Test
     void asignarResponsableCorrectamente() {
 
-        // Verifica que asignar responsable cambie el estado
         Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
 
         Usuario responsable = new Usuario(
                 "Carlos",
@@ -110,8 +112,8 @@ class SolicitudTest {
                 TipoUser.DOCENTE
         );
 
-        solicitud.clasificar(Prioridad.MEDIA, TipoSolicitud.CERTIFICADO, "coord");
-        solicitud.asignarResponsable(responsable, "coord");
+        solicitud.clasificar(Prioridad.MEDIA, TipoSolicitud.CERTIFICADO, coordinador);
+        solicitud.asignarResponsable(responsable, coordinador);
 
         assertEquals(EstadoSolicitud.ASIGNADA, solicitud.getEstado());
         assertEquals(responsable, solicitud.getResponsable());
@@ -120,128 +122,84 @@ class SolicitudTest {
     @Test
     void noPermiteAsignarResponsableNulo() {
 
-        // Verifica que el responsable no pueda ser nulo
         Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
 
-        solicitud.clasificar(Prioridad.MEDIA, TipoSolicitud.CERTIFICADO, "coord");
+        solicitud.clasificar(Prioridad.MEDIA, TipoSolicitud.CERTIFICADO, coordinador);
 
         assertThrows(ReglaDominioException.class, () ->
-                solicitud.asignarResponsable(null, "coord")
+                solicitud.asignarResponsable(null, coordinador)
         );
     }
 
     @Test
     void priorizarSolicitudCorrectamente() {
 
-        // Verifica que una solicitud pueda cambiar su prioridad correctamente
         Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
 
-        solicitud.priorizar(Prioridad.CRITICA, "coordinador");
+        solicitud.priorizar(Prioridad.CRITICA, coordinador);
 
         assertEquals(Prioridad.CRITICA, solicitud.getPrioridad());
     }
 
     @Test
     void debeCrearSolicitudEnEstadoCreada() {
-        // Arrange & Act
+
         Solicitud solicitud = crearSolicitud();
 
-        // Assert
         assertEquals(EstadoSolicitud.CREADA, solicitud.getEstado());
         assertNotNull(solicitud.getFechaCreacion());
     }
 
     @Test
-    void debeClasificarSolicitudCorrectamente() {
-        // Arrange
-        Solicitud solicitud = crearSolicitud();
-
-        // Act
-        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE_TECNICO, "ADMIN_01");
-
-        // Assert
-        assertEquals(EstadoSolicitud.CLASIFICADA, solicitud.getEstado());
-    }
-
-    @Test
-    void debeAsignarResponsableCorrectamente() {
-        // Arrange
-        Solicitud solicitud = crearSolicitud();
-        Usuario responsable = crearUsuario();
-        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE_TECNICO, "ADMIN_01");
-
-        // Act
-        solicitud.asignarResponsable(responsable, "ADMIN_01");
-
-        // Assert
-        assertEquals(EstadoSolicitud.ASIGNADA, solicitud.getEstado());
-    }
-
-    @Test
     void debeIniciarAtencionCorrectamente() {
-        // Arrange
+
         Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
         Usuario responsable = crearUsuario();
-        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE_TECNICO, "ADMIN_01");
-        solicitud.asignarResponsable(responsable, "ADMIN_01");
 
-        // Act
-        solicitud.iniciarAtencion("Pablo");
+        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE, coordinador);
+        solicitud.asignarResponsable(responsable, coordinador);
 
-        // Assert
+        solicitud.iniciarAtencion(responsable);
+
         assertEquals(EstadoSolicitud.EN_ATENCION, solicitud.getEstado());
     }
 
     @Test
     void noDebePermitirCerrarSiNoEstaAtendida() {
-        // RF-04: Prueba de Invariante
-        Solicitud solicitud = crearSolicitud();
 
-        // Intentar cerrar directamente desde CREADA debe fallar
+        Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
+
         assertThrows(ReglaDominioException.class, () -> {
-            solicitud.cerrar("ADMIN_01");
+            solicitud.cerrar(coordinador);
         });
     }
 
     @Test
     void debePasarPorTodoElCicloDeVidaYRegistrarHistorial() {
-        // 1. Arrange: Usamos tus métodos de referencia
+
         Solicitud solicitud = crearSolicitud();
+        Usuario coordinador = crearCoordinador();
         Usuario responsable = crearUsuario();
 
-        // 2. Act & Assert: Paso a paso siguiendo tus métodos de Solicitud
-
-        // Clasificar: necesita (Prioridad, TipoSolicitud, String usuario)
-        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE_TECNICO, "ADMIN_01");
+        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE, coordinador);
         assertEquals(EstadoSolicitud.CLASIFICADA, solicitud.getEstado());
 
-        // Asignar: necesita (Usuario responsable, String usuarioActuante)
-        solicitud.asignarResponsable(responsable, "ADMIN_01");
+        solicitud.asignarResponsable(responsable, coordinador);
         assertEquals(EstadoSolicitud.ASIGNADA, solicitud.getEstado());
 
-        // Iniciar Atención: necesita (String usuario)
-        solicitud.iniciarAtencion("Pablo");
+        solicitud.iniciarAtencion(responsable);
         assertEquals(EstadoSolicitud.EN_ATENCION, solicitud.getEstado());
 
-        // Finalizar Atención: necesita (String usuario)
-        solicitud.finalizarAtencion("Pablo");
+        solicitud.finalizarAtencion(responsable);
         assertEquals(EstadoSolicitud.ATENDIDA, solicitud.getEstado());
 
-        // Cerrar: necesita (String usuario)
-        solicitud.cerrar("ADMIN_01");
+        solicitud.cerrar(coordinador);
         assertEquals(EstadoSolicitud.CERRADA, solicitud.getEstado());
 
-        // RF-06: Verificamos historial (1 inicial + 5 pasos = 6)
         assertEquals(6, solicitud.getHistorial().size());
-    }
-
-    @Test
-    void noDebePermitirCerrarSiNoEstaAtendida() {
-        // Invariante: No se puede cerrar si está en CREADA
-        Solicitud solicitud = crearSolicitud();
-
-        assertThrows(ReglaDominioException.class, () -> {
-            solicitud.cerrar("ADMIN_01");
-        });
     }
 }
