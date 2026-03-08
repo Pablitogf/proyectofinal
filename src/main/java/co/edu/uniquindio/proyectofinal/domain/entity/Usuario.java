@@ -83,4 +83,13 @@ public class Usuario {
     public int hashCode() {
         return Objects.hash(id);
     }
+
+
+    public boolean esCoordinador() {
+        return TipoUser.COORDINADOR.equals(this.rolUser);
+    }
+
+    public boolean esDocente() {
+        return TipoUser.DOCENTE.equals(this.rolUser);
+    }
 }

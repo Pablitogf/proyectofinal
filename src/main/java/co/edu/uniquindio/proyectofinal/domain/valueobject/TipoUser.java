@@ -6,6 +6,7 @@ package co.edu.uniquindio.proyectofinal.domain.valueobject;
  */
 
 public enum TipoUser {
+    // RF-13:
     ESTUDIANTE,
     DOCENTE,
     COORDINADOR,

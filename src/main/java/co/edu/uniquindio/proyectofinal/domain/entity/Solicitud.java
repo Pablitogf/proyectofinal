@@ -72,6 +72,7 @@ public class Solicitud {
     }
 
     public void cerrar(Usuario usuario) {
+        //RF-08:
         validarEstadoEsperado(EstadoSolicitud.ATENDIDA, "cerrar");
         this.estado = EstadoSolicitud.CERRADA;
         this.fechaCierre = LocalDateTime.now();
@@ -172,7 +173,12 @@ public class Solicitud {
                 usuario
         );
     }
-
+    // RF-13
+    public void clasificarConSugerencia(SugerenciaIA sugerencia, Usuario coordinador) {
+        validarNoCerrada();
+        this.clasificar(sugerencia.prioridadSugerida(), sugerencia.tipoSugerido(), coordinador);
+        registrarHistorial("Clasificación asistida por IA", coordinador);
+    }
 
     @Override
     public boolean equals(Object o) {
