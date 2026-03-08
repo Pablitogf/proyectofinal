@@ -46,6 +46,8 @@ class SolicitudTest {
         );
     }
 
+
+
     @Test
     void noPermiteCrearSolicitudSinSolicitante() {
 
@@ -137,5 +139,109 @@ class SolicitudTest {
         solicitud.priorizar(Prioridad.CRITICA, "coordinador");
 
         assertEquals(Prioridad.CRITICA, solicitud.getPrioridad());
+    }
+
+    @Test
+    void debeCrearSolicitudEnEstadoCreada() {
+        // Arrange & Act
+        Solicitud solicitud = crearSolicitud();
+
+        // Assert
+        assertEquals(EstadoSolicitud.CREADA, solicitud.getEstado());
+        assertNotNull(solicitud.getFechaCreacion());
+    }
+
+    @Test
+    void debeClasificarSolicitudCorrectamente() {
+        // Arrange
+        Solicitud solicitud = crearSolicitud();
+
+        // Act
+        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE_TECNICO, "ADMIN_01");
+
+        // Assert
+        assertEquals(EstadoSolicitud.CLASIFICADA, solicitud.getEstado());
+    }
+
+    @Test
+    void debeAsignarResponsableCorrectamente() {
+        // Arrange
+        Solicitud solicitud = crearSolicitud();
+        Usuario responsable = crearUsuario();
+        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE_TECNICO, "ADMIN_01");
+
+        // Act
+        solicitud.asignarResponsable(responsable, "ADMIN_01");
+
+        // Assert
+        assertEquals(EstadoSolicitud.ASIGNADA, solicitud.getEstado());
+    }
+
+    @Test
+    void debeIniciarAtencionCorrectamente() {
+        // Arrange
+        Solicitud solicitud = crearSolicitud();
+        Usuario responsable = crearUsuario();
+        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE_TECNICO, "ADMIN_01");
+        solicitud.asignarResponsable(responsable, "ADMIN_01");
+
+        // Act
+        solicitud.iniciarAtencion("Pablo");
+
+        // Assert
+        assertEquals(EstadoSolicitud.EN_ATENCION, solicitud.getEstado());
+    }
+
+    @Test
+    void noDebePermitirCerrarSiNoEstaAtendida() {
+        // RF-04: Prueba de Invariante
+        Solicitud solicitud = crearSolicitud();
+
+        // Intentar cerrar directamente desde CREADA debe fallar
+        assertThrows(ReglaDominioException.class, () -> {
+            solicitud.cerrar("ADMIN_01");
+        });
+    }
+
+    @Test
+    void debePasarPorTodoElCicloDeVidaYRegistrarHistorial() {
+        // 1. Arrange: Usamos tus métodos de referencia
+        Solicitud solicitud = crearSolicitud();
+        Usuario responsable = crearUsuario();
+
+        // 2. Act & Assert: Paso a paso siguiendo tus métodos de Solicitud
+
+        // Clasificar: necesita (Prioridad, TipoSolicitud, String usuario)
+        solicitud.clasificar(Prioridad.ALTA, TipoSolicitud.SOPORTE_TECNICO, "ADMIN_01");
+        assertEquals(EstadoSolicitud.CLASIFICADA, solicitud.getEstado());
+
+        // Asignar: necesita (Usuario responsable, String usuarioActuante)
+        solicitud.asignarResponsable(responsable, "ADMIN_01");
+        assertEquals(EstadoSolicitud.ASIGNADA, solicitud.getEstado());
+
+        // Iniciar Atención: necesita (String usuario)
+        solicitud.iniciarAtencion("Pablo");
+        assertEquals(EstadoSolicitud.EN_ATENCION, solicitud.getEstado());
+
+        // Finalizar Atención: necesita (String usuario)
+        solicitud.finalizarAtencion("Pablo");
+        assertEquals(EstadoSolicitud.ATENDIDA, solicitud.getEstado());
+
+        // Cerrar: necesita (String usuario)
+        solicitud.cerrar("ADMIN_01");
+        assertEquals(EstadoSolicitud.CERRADA, solicitud.getEstado());
+
+        // RF-06: Verificamos historial (1 inicial + 5 pasos = 6)
+        assertEquals(6, solicitud.getHistorial().size());
+    }
+
+    @Test
+    void noDebePermitirCerrarSiNoEstaAtendida() {
+        // Invariante: No se puede cerrar si está en CREADA
+        Solicitud solicitud = crearSolicitud();
+
+        assertThrows(ReglaDominioException.class, () -> {
+            solicitud.cerrar("ADMIN_01");
+        });
     }
 }

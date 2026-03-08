@@ -56,6 +56,30 @@ public class Solicitud {
         registrarHistorial("Solicitud creada", solicitante);
     }
 
+    public void iniciarAtencion(String usuario) {
+        validarNoCerrada();
+        // Usamos CREADA o CLASIFICADA según lo que tengas en tu enum
+        validarEstadoPermitido(List.of(EstadoSolicitud.CLASIFICADA, EstadoSolicitud.ASIGNADA), "iniciar atención");
+        validarTieneResponsable("iniciar atención");
+
+        this.estado = EstadoSolicitud.EN_ATENCION;
+        registrarHistorial("El responsable ha iniciado la gestión", usuario);
+    }
+
+    public void finalizarAtencion(String usuario) {
+        validarEstadoEsperado(EstadoSolicitud.EN_ATENCION, "finalizar atención");
+        this.estado = EstadoSolicitud.ATENDIDA;
+        registrarHistorial("Trámite completado por el responsable", usuario);
+    }
+
+    public void cerrar(String usuario) {
+        validarEstadoEsperado(EstadoSolicitud.ATENDIDA, "cerrar");
+        this.estado = EstadoSolicitud.CERRADA;
+        this.fechaCierre = LocalDateTime.now();
+        registrarHistorial("Solicitud cerrada formalmente", usuario);
+    }
+
+
 
     private void validarNoCerrada() {
         if (EstadoSolicitud.CERRADA.equals(this.estado))
