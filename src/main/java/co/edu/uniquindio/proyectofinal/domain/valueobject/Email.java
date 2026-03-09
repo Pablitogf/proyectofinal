@@ -16,9 +16,4 @@ public record Email(String direccion) {
             throw new ReglaDominioException("El formato del email no es válido");
         }
     }
-
-    @Override
-    public String toString() {
-        return direccion;
-    }
 }

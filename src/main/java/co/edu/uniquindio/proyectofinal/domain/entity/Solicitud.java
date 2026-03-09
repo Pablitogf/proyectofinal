@@ -174,11 +174,11 @@ public class Solicitud {
         );
     }
     // RF-13
-    public void clasificarConSugerencia(SugerenciaIA sugerencia, Usuario coordinador) {
-        validarNoCerrada();
-        this.clasificar(sugerencia.prioridadSugerida(), sugerencia.tipoSugerido(), coordinador);
-        registrarHistorial("Clasificación asistida por IA", coordinador);
-    }
+//    public void clasificarConSugerencia(SugerenciaIA sugerencia, Usuario coordinador) {
+//        validarNoCerrada();
+//        this.clasificar(sugerencia.prioridadSugerida(), sugerencia.tipoSugerido(), coordinador);
+//        registrarHistorial("Clasificación asistida por IA", coordinador);
+//    }
 
     @Override
     public boolean equals(Object o) {
