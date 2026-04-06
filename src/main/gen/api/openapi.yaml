@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  description: API para la gestión de solicitudes
+  title: API Sistema de Solicitudes
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+paths:
+  /api/solicitudes:
+    get:
+      responses:
+        "200":
+          description: Lista de solicitudes
+      summary: Listar solicitudes
+      x-accepts:
+      - application/json
+    post:
+      responses:
+        "201":
+          description: Solicitud creada
+      summary: Crear una solicitud
+      x-accepts:
+      - application/json
+  /api/solicitudes/{id}:
+    get:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Solicitud encontrada
+      summary: Obtener solicitud por id
+      x-accepts:
+      - application/json
+  /api/solicitudes/{id}/clasificar:
+    put:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Solicitud clasificada
+      summary: Clasificar solicitud
+      x-accepts:
+      - application/json
+  /api/solicitudes/{id}/asignar:
+    put:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Responsable asignado
+      summary: Asignar responsable
+      x-accepts:
+      - application/json
+  /api/solicitudes/{id}/estado:
+    patch:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Estado actualizado
+      summary: Cambiar estado de solicitud
+      x-accepts:
+      - application/json
+  /api/solicitudes/{id}/cerrar:
+    put:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Solicitud cerrada
+      summary: Cerrar solicitud
+      x-accepts:
+      - application/json
+  /api/solicitudes/{id}/prioridad:
+    patch:
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          description: Prioridad actualizada
+      summary: Cambiar prioridad de solicitud
+      x-accepts:
+      - application/json
+components:
+  schemas: {}
+

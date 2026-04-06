@@ -1,0 +1,101 @@
+openapi: 3.0.3
+info:
+  title: API Sistema de Solicitudes
+  description: API para la gestión de solicitudes
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+
+  /api/solicitudes:
+    post:
+      summary: Crear una solicitud
+      responses:
+        "201":
+          description: Solicitud creada
+
+    get:
+      summary: Listar solicitudes
+      responses:
+        "200":
+          description: Lista de solicitudes
+
+  /api/solicitudes/{id}:
+    get:
+      summary: Obtener solicitud por id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Solicitud encontrada
+
+  /api/solicitudes/{id}/clasificar:
+    put:
+      summary: Clasificar solicitud
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Solicitud clasificada
+
+  /api/solicitudes/{id}/asignar:
+    put:
+      summary: Asignar responsable
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Responsable asignado
+
+  /api/solicitudes/{id}/estado:
+    patch:
+      summary: Cambiar estado de solicitud
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Estado actualizado
+
+  /api/solicitudes/{id}/cerrar:
+    put:
+      summary: Cerrar solicitud
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Solicitud cerrada
+
+  /api/solicitudes/{id}/prioridad:
+    patch:
+      summary: Cambiar prioridad de solicitud
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Prioridad actualizada
