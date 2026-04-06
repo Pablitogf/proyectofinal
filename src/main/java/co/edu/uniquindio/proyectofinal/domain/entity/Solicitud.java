@@ -15,8 +15,8 @@ import java.util.Objects;
 @Getter
 public class Solicitud {
 
-    private static int contador = 1;
 
+    private final String id;
     private final CodigoSolicitud codigo;
     private final String descripcion;
     private final Usuario solicitante;
@@ -34,13 +34,13 @@ public class Solicitud {
 
 
     private static CodigoSolicitud generarCodigo() {
-        String codigo = String.format("SOL-%04d", contador++);
+        String codigo = "SOL-" + System.currentTimeMillis();
         return new CodigoSolicitud(codigo);
     }
 
 
     private Solicitud(Builder builder) {
-
+        this.id = java.util.UUID.randomUUID().toString();
         this.codigo = generarCodigo();
         this.descripcion = builder.descripcion;
         this.solicitante = builder.solicitante;
@@ -192,6 +192,10 @@ public class Solicitud {
         return Objects.hash(codigo);
     }
 
+    public String getId() {
+        return id;
+    }
+
 
     public static class Builder {
 
@@ -237,5 +241,8 @@ public class Solicitud {
                     .solicitante(solicitante)
                     .build();
         }
+
     }
+
+
 }
