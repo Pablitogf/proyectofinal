@@ -33,8 +33,10 @@ public class Solicitud {
     private final List<HistorialSolicitud> historial = new ArrayList<>();
 
 
+    private static int contador = 1;
+
     private static CodigoSolicitud generarCodigo() {
-        String codigo = "SOL-" + System.currentTimeMillis();
+        String codigo = String.format("SOL-%04d", contador++);
         return new CodigoSolicitud(codigo);
     }
 
