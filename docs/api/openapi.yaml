@@ -1,29 +1,40 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: API Sistema de Solicitudes
-  description: API para la gestión de solicitudes
+  description: API completa para la gestión del ciclo de vida de solicitudes.
   version: 1.0.0
-
 servers:
   - url: http://localhost:8080
+    description: Servidor Local
+
+tags:
+  - name: Solicitudes
+    description: Operaciones del dominio para el Agregado Solicitud
 
 paths:
-
   /api/solicitudes:
     post:
+      tags: [Solicitudes]
       summary: Crear una solicitud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearSolicitudRequest'
       responses:
-        "201":
+        '201':
           description: Solicitud creada
-
     get:
+      tags: [Solicitudes]
       summary: Listar solicitudes
       responses:
-        "200":
+        '200':
           description: Lista de solicitudes
 
   /api/solicitudes/{id}:
     get:
+      tags: [Solicitudes]
       summary: Obtener solicitud por id
       parameters:
         - name: id
@@ -32,11 +43,12 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Solicitud encontrada
 
   /api/solicitudes/{id}/clasificar:
     put:
+      tags: [Solicitudes]
       summary: Clasificar solicitud
       parameters:
         - name: id
@@ -44,12 +56,19 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClasificarSolicitudRequest'
       responses:
-        "200":
+        '200':
           description: Solicitud clasificada
 
   /api/solicitudes/{id}/asignar:
     put:
+      tags: [Solicitudes]
       summary: Asignar responsable
       parameters:
         - name: id
@@ -57,12 +76,19 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AsignarResponsableRequest'
       responses:
-        "200":
+        '200':
           description: Responsable asignado
 
   /api/solicitudes/{id}/estado:
     patch:
+      tags: [Solicitudes]
       summary: Cambiar estado de solicitud
       parameters:
         - name: id
@@ -70,12 +96,39 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambiarEstadoRequest'
       responses:
-        "200":
+        '200':
           description: Estado actualizado
+
+  /api/solicitudes/{id}/prioridad:
+    patch:
+      tags: [Solicitudes]
+      summary: Cambiar prioridad de solicitud
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambiarPrioridadRequest'
+      responses:
+        '200':
+          description: Prioridad actualizada
 
   /api/solicitudes/{id}/cerrar:
     put:
+      tags: [Solicitudes]
       summary: Cerrar solicitud
       parameters:
         - name: id
@@ -84,18 +137,52 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: Solicitud cerrada
 
-  /api/solicitudes/{id}/prioridad:
-    patch:
-      summary: Cambiar prioridad de solicitud
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Prioridad actualizada
+components:
+  schemas:
+    CrearSolicitudRequest:
+      type: object
+      required: [tipoSolicitudId, descripcion, canalOrigen]
+      properties:
+        tipoSolicitudId:
+          type: integer
+        descripcion:
+          type: string
+        canalOrigen:
+          type: string
+          enum: [WEB, CORREO, PRESENCIAL]
+
+    ClasificarSolicitudRequest:
+      type: object
+      required: [tipoSolicitudId, prioridad]
+      properties:
+        tipoSolicitudId:
+          type: integer
+        prioridad:
+          type: string
+          enum: [ALTA, MEDIA, BAJA]
+
+    AsignarResponsableRequest:
+      type: object
+      required: [responsableId]
+      properties:
+        responsableId:
+          type: string
+
+    CambiarEstadoRequest:
+      type: object
+      required: [nuevoEstado]
+      properties:
+        nuevoEstado:
+          type: string
+          enum: [REGISTRADA, CLASIFICADA, ASIGNADA, CERRADA]
+
+    CambiarPrioridadRequest:
+      type: object
+      required: [prioridad]
+      properties:
+        prioridad:
+          type: string
+          enum: [ALTA, MEDIA, BAJA]

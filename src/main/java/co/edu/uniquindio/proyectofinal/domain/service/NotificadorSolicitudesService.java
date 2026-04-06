@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * Servicio de Dominio: NotificadorSolicitudes
  */
-public class NotificadorSolicitudes {
+public class NotificadorSolicitudesService {
 
     public List<String> determinarDestinatarios(Solicitud solicitud, TipoNotificacion tipo) {
         return switch (tipo) {
