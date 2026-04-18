@@ -1,55 +1,272 @@
 openapi: 3.1.0
 info:
   title: API Sistema de Solicitudes
-  description: API completa para la gestión del ciclo de vida de solicitudes.
-  version: 1.0.0
+  description: Gestion completa de solicitudes con parametros, paginacion y respuestas exhaustivas.
+  version: 2.0.0
 servers:
   - url: http://localhost:8080
-    description: Servidor Local
-
-tags:
-  - name: Solicitudes
-    description: Operaciones del dominio para el Agregado Solicitud
 
 paths:
+
   /api/solicitudes:
+    get:
+      summary: Listar solicitudes (paginado)
+      description: Devuelve una lista paginada de solicitudes. Permite filtrar por estado y prioridad, ordenar por cualquier campo y realizar busqueda libre sobre la descripcion.
+      parameters:
+        - name: estado
+          in: query
+          description: Filtra por estado de la solicitud.
+          schema:
+            type: string
+            enum: [REGISTRADA, CLASIFICADA, ASIGNADA, CERRADA]
+        - name: prioridad
+          in: query
+          description: Filtra por nivel de prioridad.
+          schema:
+            type: string
+            enum: [ALTA, MEDIA, BAJA]
+        - name: page
+          in: query
+          description: Numero de pagina base 0. Defecto 0.
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - name: size
+          in: query
+          description: Cantidad de elementos por pagina. Defecto 20. Maximo 100.
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: sort
+          in: query
+          description: Campo por el que se ordena el resultado.
+          schema:
+            type: string
+            enum: [fechaCreacion, prioridad, estado, id]
+            default: fechaCreacion
+        - name: direction
+          in: query
+          description: Direccion del ordenamiento.
+          schema:
+            type: string
+            enum: [ASC, DESC]
+            default: DESC
+        - name: q
+          in: query
+          description: Busqueda libre sobre el campo descripcion.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista paginada devuelta con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginaSolicitudes'
+        '400':
+          description: Parametro de consulta invalido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorValidacion'
+              example:
+                status: 400
+                error: Bad Request
+                message: Valor invalido para el parametro estado.
+                timestamp: "2025-01-15T10:22:33Z"
+        '401':
+          description: Token de autenticacion ausente o expirado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 401
+                error: Unauthorized
+                message: Token JWT invalido o expirado.
+        '403':
+          description: El usuario no tiene permisos para listar solicitudes.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 403
+                error: Forbidden
+                message: Acceso denegado. Rol requerido CONSULTOR.
+        '500':
+          description: Error interno del servidor.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 500
+                error: Internal Server Error
+                message: Ha ocurrido un error inesperado.
+
     post:
-      tags: [Solicitudes]
       summary: Crear una solicitud
+      description: Registra una nueva solicitud en el sistema. El estado inicial es siempre REGISTRADA. Si se omite solicitanteId se infiere del token JWT.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CrearSolicitudRequest'
+              $ref: '#/components/schemas/CrearSolicitud'
+            example:
+              tipoSolicitudId: 3
+              descripcion: Falla en el modulo de pagos al intentar procesar transacciones.
+              canalOrigen: WEB
+              solicitanteId: USR-021
+              adjuntos:
+                - https://storage.empresa.com/evidencia1.png
+              metadatos:
+                sistemaAfectado: pagos
+                severidad: critica
       responses:
         '201':
-          description: Solicitud creada
-    get:
-      tags: [Solicitudes]
-      summary: Listar solicitudes
-      responses:
-        '200':
-          description: Lista de solicitudes
+          description: Solicitud creada correctamente. Retorna el recurso completo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solicitud'
+              example:
+                id: SOL-1043
+                estado: REGISTRADA
+                prioridad: null
+                tipoSolicitudId: 3
+                descripcion: Falla en el modulo de pagos al intentar procesar transacciones.
+                canalOrigen: WEB
+                solicitanteId: USR-021
+                responsableId: null
+                fechaCreacion: "2025-01-15T10:22:33Z"
+                fechaCierre: null
+        '400':
+          description: Payload invalido, campo requerido ausente o valor fuera de dominio.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorValidacion'
+              example:
+                status: 400
+                error: Bad Request
+                violations:
+                  - field: canalOrigen
+                    message: Debe ser uno de WEB, CORREO o PRESENCIAL.
+        '401':
+          description: Sin autenticacion valida.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '409':
+          description: Solicitud duplicada. Ya existe una solicitud abierta del mismo tipo para el mismo solicitante en las ultimas 24 horas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflicto'
+              example:
+                status: 409
+                error: Conflict
+                message: Ya existe una solicitud abierta de este tipo para el solicitante.
+                solicitudId: SOL-1040
+        '422':
+          description: tipoSolicitudId no existe en el catalogo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: El tipoSolicitudId 99 no existe en el catalogo.
+        '500':
+          description: Error interno al persistir la solicitud.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
 
   /api/solicitudes/{id}:
     get:
-      tags: [Solicitudes]
-      summary: Obtener solicitud por id
+      summary: Ver detalle de una solicitud
+      description: Retorna el recurso completo de la solicitud incluyendo el historial de cambios de estado.
       parameters:
         - name: id
           in: path
           required: true
+          description: Identificador unico de la solicitud. Ejemplo SOL-1043.
           schema:
             type: string
       responses:
         '200':
-          description: Solicitud encontrada
+          description: Detalle de la solicitud encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudDetalle'
+              example:
+                id: SOL-1043
+                estado: ASIGNADA
+                prioridad: ALTA
+                tipoSolicitudId: 3
+                tipoSolicitudNombre: Falla tecnica
+                descripcion: Falla en el modulo de pagos.
+                canalOrigen: WEB
+                solicitanteId: USR-021
+                responsableId: USR-042
+                responsableNombre: Ana Garcia
+                fechaCreacion: "2025-01-15T10:22:33Z"
+                fechaAsignacion: "2025-01-15T11:00:00Z"
+                fechaCierre: null
+                historial:
+                  - estado: REGISTRADA
+                    fecha: "2025-01-15T10:22:33Z"
+                  - estado: CLASIFICADA
+                    fecha: "2025-01-15T10:45:00Z"
+                  - estado: ASIGNADA
+                    fecha: "2025-01-15T11:00:00Z"
+        '401':
+          description: Sin autenticacion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '403':
+          description: El usuario no tiene permiso para ver esta solicitud.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 403
+                error: Forbidden
+                message: No tiene acceso a esta solicitud.
+        '404':
+          description: No existe una solicitud con ese ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 404
+                error: Not Found
+                message: Solicitud SOL-9999 no encontrada.
+        '500':
+          description: Error interno.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
 
   /api/solicitudes/{id}/clasificar:
     put:
-      tags: [Solicitudes]
       summary: Clasificar solicitud
+      description: Asigna tipo y prioridad a la solicitud. Solo aplica cuando el estado es REGISTRADA. Al completarse transiciona automaticamente a CLASIFICADA.
       parameters:
         - name: id
           in: path
@@ -61,15 +278,83 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClasificarSolicitudRequest'
+              $ref: '#/components/schemas/ClasificarSolicitud'
+            example:
+              tipoSolicitudId: 3
+              prioridad: ALTA
+              justificacion: Impacto critico en produccion confirmado por el equipo tecnico.
       responses:
         '200':
-          description: Solicitud clasificada
+          description: Clasificacion actualizada. Retorna el recurso actualizado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solicitud'
+              example:
+                id: SOL-1043
+                estado: CLASIFICADA
+                prioridad: ALTA
+                tipoSolicitudId: 3
+                fechaClasificacion: "2025-01-15T10:45:00Z"
+        '400':
+          description: Payload invalido, campo requerido ausente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorValidacion'
+              example:
+                status: 400
+                error: Bad Request
+                violations:
+                  - field: prioridad
+                    message: Campo requerido.
+        '401':
+          description: Sin autenticacion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '404':
+          description: Solicitud no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 404
+                error: Not Found
+                message: Solicitud SOL-9999 no encontrada.
+        '409':
+          description: La solicitud no esta en estado REGISTRADA.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflicto'
+              example:
+                status: 409
+                error: Conflict
+                message: La solicitud debe estar en estado REGISTRADA para clasificarse. Estado actual ASIGNADA.
+        '422':
+          description: tipoSolicitudId no existe en el catalogo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 422
+                error: Unprocessable Entity
+                message: tipoSolicitudId 99 no existe en el catalogo.
+        '500':
+          description: Error interno.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
 
   /api/solicitudes/{id}/asignar:
     put:
-      tags: [Solicitudes]
       summary: Asignar responsable
+      description: Asigna un usuario responsable a la solicitud. La solicitud debe estar en estado CLASIFICADA. Al asignarse transiciona automaticamente a ASIGNADA.
       parameters:
         - name: id
           in: path
@@ -81,15 +366,74 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AsignarResponsableRequest'
+              $ref: '#/components/schemas/AsignarSolicitud'
+            example:
+              responsableId: USR-042
+              comentario: Revisar con el equipo de infraestructura. Prioridad maxima.
+              fechaCompromiso: "2025-01-17T17:00:00Z"
       responses:
         '200':
-          description: Responsable asignado
+          description: Responsable asignado con exito.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solicitud'
+              example:
+                id: SOL-1043
+                estado: ASIGNADA
+                responsableId: USR-042
+                responsableNombre: Ana Garcia
+                fechaAsignacion: "2025-01-15T11:00:00Z"
+                fechaCompromiso: "2025-01-17T17:00:00Z"
+        '400':
+          description: responsableId ausente o payload invalido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorValidacion'
+              example:
+                status: 400
+                error: Bad Request
+                violations:
+                  - field: responsableId
+                    message: Campo requerido.
+        '401':
+          description: Sin autenticacion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '404':
+          description: Solicitud o usuario responsable no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 404
+                error: Not Found
+                message: Usuario USR-999 no existe.
+        '409':
+          description: La solicitud no esta en estado CLASIFICADA.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflicto'
+              example:
+                status: 409
+                error: Conflict
+                message: La solicitud debe estar en estado CLASIFICADA. Estado actual REGISTRADA.
+        '500':
+          description: Error interno.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
 
   /api/solicitudes/{id}/estado:
     patch:
-      tags: [Solicitudes]
-      summary: Cambiar estado de solicitud
+      summary: Cambiar estado
+      description: Actualiza el estado de la solicitud siguiendo las transiciones validas del flujo. Si nuevoEstado es CERRADA el campo motivo es obligatorio.
       parameters:
         - name: id
           in: path
@@ -101,15 +445,66 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CambiarEstadoRequest'
+              $ref: '#/components/schemas/CambiarEstado'
+            example:
+              nuevoEstado: CERRADA
+              motivo: Resuelto satisfactoriamente tras reinicio del servicio.
       responses:
         '200':
-          description: Estado actualizado
+          description: Estado actualizado. Retorna el estado anterior y actual.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultadoCambioEstado'
+              example:
+                id: SOL-1043
+                estadoAnterior: ASIGNADA
+                estadoActual: CERRADA
+                motivo: Resuelto satisfactoriamente.
+                fecha: "2025-01-16T15:30:00Z"
+        '400':
+          description: nuevoEstado invalido o motivo requerido ausente al cerrar.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorValidacion'
+              example:
+                status: 400
+                error: Bad Request
+                message: El campo motivo es obligatorio al cerrar una solicitud.
+        '401':
+          description: Sin autenticacion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '404':
+          description: Solicitud no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '409':
+          description: Transicion de estado no permitida por el flujo.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflicto'
+              example:
+                status: 409
+                error: Conflict
+                message: Transicion invalida de REGISTRADA a CERRADA no esta permitida.
+        '500':
+          description: Error interno.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
 
   /api/solicitudes/{id}/prioridad:
     patch:
-      tags: [Solicitudes]
-      summary: Cambiar prioridad de solicitud
+      summary: Cambiar prioridad
+      description: Modifica la prioridad de una solicitud en cualquier estado activo excepto CERRADA.
       parameters:
         - name: id
           in: path
@@ -121,68 +516,509 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CambiarPrioridadRequest'
+              $ref: '#/components/schemas/CambiarPrioridad'
+            example:
+              prioridad: ALTA
+              motivo: Impacto en produccion detectado tras analisis de incidencia.
       responses:
         '200':
-          description: Prioridad actualizada
+          description: Prioridad actualizada. Retorna la prioridad anterior y actual.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultadoCambioPrioridad'
+              example:
+                id: SOL-1043
+                prioridadAnterior: BAJA
+                prioridadActual: ALTA
+                motivo: Impacto en produccion detectado.
+                fecha: "2025-01-15T14:10:00Z"
+        '400':
+          description: Valor de prioridad invalido.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorValidacion'
+              example:
+                status: 400
+                error: Bad Request
+                violations:
+                  - field: prioridad
+                    message: Debe ser uno de ALTA, MEDIA o BAJA.
+        '401':
+          description: Sin autenticacion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '404':
+          description: Solicitud no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '409':
+          description: No se puede modificar la prioridad de una solicitud CERRADA.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflicto'
+              example:
+                status: 409
+                error: Conflict
+                message: No se puede modificar la prioridad de una solicitud cerrada.
+        '500':
+          description: Error interno.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
 
   /api/solicitudes/{id}/cerrar:
     put:
-      tags: [Solicitudes]
       summary: Cerrar solicitud
+      description: Cierra definitivamente una solicitud. Accion irreversible. La solicitud debe estar en estado ASIGNADA. Opcionalmente notifica al solicitante y registra una calificacion de satisfaccion.
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CerrarSolicitud'
+            example:
+              resolucion: Se restablecio el servicio de pagos mediante reinicio del contenedor.
+              satisfaccion: 5
+              notificarSolicitante: true
       responses:
         '200':
-          description: Solicitud cerrada
+          description: La solicitud ha sido cerrada exitosamente.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Solicitud'
+              example:
+                id: SOL-1043
+                estado: CERRADA
+                resolucion: Se restablecio el servicio de pagos.
+                fechaCierre: "2025-01-16T15:30:00Z"
+                responsableId: USR-042
+                notificacionEnviada: true
+        '400':
+          description: Campo resolucion ausente o satisfaccion fuera del rango 1 a 5.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorValidacion'
+              example:
+                status: 400
+                error: Bad Request
+                violations:
+                  - field: resolucion
+                    message: La resolucion es obligatoria para cerrar una solicitud.
+        '401':
+          description: Sin autenticacion.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '403':
+          description: Solo el responsable asignado o un administrador pueden cerrar la solicitud.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+              example:
+                status: 403
+                error: Forbidden
+                message: Solo el responsable asignado puede cerrar esta solicitud.
+        '404':
+          description: Solicitud no encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
+        '409':
+          description: La solicitud no esta en estado ASIGNADA o ya esta cerrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorConflicto'
+              example:
+                status: 409
+                error: Conflict
+                message: Solo se pueden cerrar solicitudes en estado ASIGNADA. Estado actual CLASIFICADA.
+        '500':
+          description: Error interno.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorGeneral'
 
 components:
   schemas:
-    CrearSolicitudRequest:
+
+    CrearSolicitud:
       type: object
       required: [tipoSolicitudId, descripcion, canalOrigen]
       properties:
         tipoSolicitudId:
           type: integer
+          description: ID del tipo de solicitud del catalogo.
+          example: 3
         descripcion:
           type: string
+          maxLength: 2000
+          description: Descripcion detallada del requerimiento.
+          example: Falla en el modulo de pagos al procesar transacciones.
         canalOrigen:
           type: string
           enum: [WEB, CORREO, PRESENCIAL]
+          description: Canal por el que ingreso la solicitud.
+          example: WEB
+        solicitanteId:
+          type: string
+          description: ID del usuario solicitante. Si se omite se infiere del token JWT.
+          example: USR-021
+        adjuntos:
+          type: array
+          items:
+            type: string
+            format: uri
+          maxItems: 10
+          description: URLs de archivos adjuntos. Maximo 10.
+        metadatos:
+          type: object
+          additionalProperties: true
+          description: Campos clave-valor adicionales definidos por tipo de solicitud.
 
-    ClasificarSolicitudRequest:
+    ClasificarSolicitud:
       type: object
       required: [tipoSolicitudId, prioridad]
       properties:
         tipoSolicitudId:
           type: integer
+          description: ID del tipo de solicitud del catalogo.
+          example: 3
         prioridad:
           type: string
           enum: [ALTA, MEDIA, BAJA]
+          description: Nivel de urgencia.
+          example: ALTA
+        justificacion:
+          type: string
+          maxLength: 500
+          description: Motivo de la clasificacion para auditoria.
+          example: Impacto critico en produccion confirmado.
 
-    AsignarResponsableRequest:
+    AsignarSolicitud:
       type: object
       required: [responsableId]
       properties:
         responsableId:
           type: string
+          description: ID del usuario que atendera la solicitud.
+          example: USR-042
+        comentario:
+          type: string
+          maxLength: 500
+          description: Instrucciones o contexto para el responsable.
+          example: Revisar con el equipo de infraestructura.
+        fechaCompromiso:
+          type: string
+          format: date-time
+          description: Fecha estimada de resolucion en formato ISO-8601.
+          example: "2025-01-17T17:00:00Z"
 
-    CambiarEstadoRequest:
+    CambiarEstado:
       type: object
       required: [nuevoEstado]
       properties:
         nuevoEstado:
           type: string
           enum: [REGISTRADA, CLASIFICADA, ASIGNADA, CERRADA]
+          description: Estado destino.
+          example: CERRADA
+        motivo:
+          type: string
+          maxLength: 500
+          description: Razon del cambio. Obligatorio si nuevoEstado es CERRADA.
+          example: Resuelto satisfactoriamente.
 
-    CambiarPrioridadRequest:
+    CambiarPrioridad:
       type: object
       required: [prioridad]
       properties:
         prioridad:
           type: string
           enum: [ALTA, MEDIA, BAJA]
+          description: Nueva prioridad.
+          example: ALTA
+        motivo:
+          type: string
+          maxLength: 500
+          description: Justificacion del cambio de prioridad.
+          example: Impacto en produccion detectado.
+
+    CerrarSolicitud:
+      type: object
+      required: [resolucion]
+      properties:
+        resolucion:
+          type: string
+          maxLength: 1000
+          description: Descripcion de la resolucion aplicada.
+          example: Se restablecio el servicio mediante reinicio del contenedor.
+        satisfaccion:
+          type: integer
+          minimum: 1
+          maximum: 5
+          description: Calificacion de satisfaccion del usuario en escala 1 a 5.
+          example: 5
+        notificarSolicitante:
+          type: boolean
+          default: true
+          description: Si se debe enviar notificacion al solicitante.
+          example: true
+
+    Solicitud:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Identificador unico generado por el sistema.
+          example: SOL-1043
+        estado:
+          type: string
+          enum: [REGISTRADA, CLASIFICADA, ASIGNADA, CERRADA]
+          example: REGISTRADA
+        prioridad:
+          type: string
+          enum: [ALTA, MEDIA, BAJA]
+          nullable: true
+          example: null
+        tipoSolicitudId:
+          type: integer
+          example: 3
+        descripcion:
+          type: string
+          example: Falla en el modulo de pagos.
+        canalOrigen:
+          type: string
+          enum: [WEB, CORREO, PRESENCIAL]
+          example: WEB
+        solicitanteId:
+          type: string
+          example: USR-021
+        responsableId:
+          type: string
+          nullable: true
+          example: null
+        fechaCreacion:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:22:33Z"
+        fechaCierre:
+          type: string
+          format: date-time
+          nullable: true
+          example: null
+
+    SolicitudDetalle:
+      allOf:
+        - $ref: '#/components/schemas/Solicitud'
+        - type: object
+          properties:
+            tipoSolicitudNombre:
+              type: string
+              example: Falla tecnica
+            responsableNombre:
+              type: string
+              nullable: true
+              example: Ana Garcia
+            fechaAsignacion:
+              type: string
+              format: date-time
+              nullable: true
+              example: "2025-01-15T11:00:00Z"
+            fechaClasificacion:
+              type: string
+              format: date-time
+              nullable: true
+              example: "2025-01-15T10:45:00Z"
+            historial:
+              type: array
+              items:
+                $ref: '#/components/schemas/EntradaHistorial'
+
+    EntradaHistorial:
+      type: object
+      properties:
+        estado:
+          type: string
+          enum: [REGISTRADA, CLASIFICADA, ASIGNADA, CERRADA]
+          example: CLASIFICADA
+        fecha:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:45:00Z"
+        usuarioId:
+          type: string
+          nullable: true
+          example: USR-010
+
+    PaginaSolicitudes:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/Solicitud'
+        pageable:
+          type: object
+          properties:
+            page:
+              type: integer
+              example: 0
+            size:
+              type: integer
+              example: 20
+            sort:
+              type: string
+              example: fechaCreacion,DESC
+        totalElements:
+          type: integer
+          example: 142
+        totalPages:
+          type: integer
+          example: 8
+        last:
+          type: boolean
+          example: false
+
+    ResultadoCambioEstado:
+      type: object
+      properties:
+        id:
+          type: string
+          example: SOL-1043
+        estadoAnterior:
+          type: string
+          enum: [REGISTRADA, CLASIFICADA, ASIGNADA, CERRADA]
+          example: ASIGNADA
+        estadoActual:
+          type: string
+          enum: [REGISTRADA, CLASIFICADA, ASIGNADA, CERRADA]
+          example: CERRADA
+        motivo:
+          type: string
+          nullable: true
+          example: Resuelto satisfactoriamente.
+        fecha:
+          type: string
+          format: date-time
+          example: "2025-01-16T15:30:00Z"
+
+    ResultadoCambioPrioridad:
+      type: object
+      properties:
+        id:
+          type: string
+          example: SOL-1043
+        prioridadAnterior:
+          type: string
+          enum: [ALTA, MEDIA, BAJA]
+          example: BAJA
+        prioridadActual:
+          type: string
+          enum: [ALTA, MEDIA, BAJA]
+          example: ALTA
+        motivo:
+          type: string
+          nullable: true
+          example: Impacto en produccion detectado.
+        fecha:
+          type: string
+          format: date-time
+          example: "2025-01-15T14:10:00Z"
+
+    ErrorGeneral:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 404
+        error:
+          type: string
+          example: Not Found
+        message:
+          type: string
+          example: Solicitud SOL-9999 no encontrada.
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:22:33Z"
+
+    ErrorValidacion:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          nullable: true
+          example: null
+        violations:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: prioridad
+              message:
+                type: string
+                example: Campo requerido.
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:22:33Z"
+
+    ErrorConflicto:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 409
+        error:
+          type: string
+          example: Conflict
+        message:
+          type: string
+          example: Transicion de estado no permitida.
+        solicitudId:
+          type: string
+          nullable: true
+          description: Presente solo en conflictos de solicitud duplicada.
+          example: null
+        timestamp:
+          type: string
+          format: date-time
+          example: "2025-01-15T10:22:33Z"
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - BearerAuth: []
