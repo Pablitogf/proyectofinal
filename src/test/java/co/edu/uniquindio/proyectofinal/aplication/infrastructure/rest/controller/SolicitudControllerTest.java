@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyectofinal.infrastructure.rest.controller;
+package co.edu.uniquindio.proyectofinal.aplication.infrastructure.rest.controller;
 
 
 import co.edu.uniquindio.proyectofinal.application.usecase.CerrarSolicitudUseCase;

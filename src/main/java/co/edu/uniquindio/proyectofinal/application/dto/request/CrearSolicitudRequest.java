@@ -14,6 +14,9 @@ public record CrearSolicitudRequest(
         String descripcion,
 
         @NotBlank
-        String canalOrigen
+        String canalOrigen,
+
+        @NotBlank(message = "El ID del usuario es obligatorio")
+        String usuarioId // <--- Agregado
 
 ) {}
