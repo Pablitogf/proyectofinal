@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyectofinal.domain.valueobject;
+package co.edu.uniquindio.proyectofinal.domain.model.valueobject;
 
 /**
  * Value Object que representa el tipo de solicitud (Ej: Homologación, Cancelación, etc.)

@@ -1,24 +1,26 @@
 package co.edu.uniquindio.proyectofinal.application.usecase;
 
-import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
-import co.edu.uniquindio.proyectofinal.domain.entity.Usuario;
-import co.edu.uniquindio.proyectofinal.domain.repository.SolicitudRepositorio;
+import co.edu.uniquindio.proyectofinal.application.dto.request.CrearSolicitudRequest;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.model.repository.SolicitudRepositorio;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
 public class CrearSolicitudUseCase {
 
     private final SolicitudRepositorio repositorio;
 
-    public CrearSolicitudUseCase(SolicitudRepositorio repositorio) {
-        this.repositorio = repositorio;
-    }
+    public Solicitud ejecutar(CrearSolicitudRequest request) {
 
-    public Solicitud ejecutar(String descripcion, Usuario solicitante) {
+        Usuario solicitante = new Usuario(request.usuarioId());
 
         Solicitud solicitud = Solicitud.Builder
-                .registrar(descripcion, solicitante);
+                .registrar(request.descripcion(), solicitante);
 
-        repositorio.guardar(solicitud);
-
-        return solicitud;
+        return repositorio.guardar(solicitud);
     }
 }

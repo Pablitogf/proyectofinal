@@ -1,7 +1,8 @@
 package co.edu.uniquindio.proyectofinal.domain.entity;
 
-import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
-import co.edu.uniquindio.proyectofinal.domain.valueobject.*;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

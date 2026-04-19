@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record ClasificarSolicitudRequest(
-
         @NotNull
         Long tipoSolicitudId,
 
@@ -14,6 +13,8 @@ public record ClasificarSolicitudRequest(
 
         @NotBlank
         @Size(min = 10, max = 500)
-        String justificacion
+        String justificacion,
 
+        @NotBlank
+        String coordinadorId // Agrega este campo
 ) {}

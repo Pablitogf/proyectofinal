@@ -1,9 +1,9 @@
-package co.edu.uniquindio.proyectofinal.domain.entity;
+package co.edu.uniquindio.proyectofinal.domain.model.entity;
 
 
 import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
-import co.edu.uniquindio.proyectofinal.domain.valueobject.Email;
-import co.edu.uniquindio.proyectofinal.domain.valueobject.TipoUser;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.Email;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.TipoUser;
 import lombok.Getter;
 
 import java.util.Objects;

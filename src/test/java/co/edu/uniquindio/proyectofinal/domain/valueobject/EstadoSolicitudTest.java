@@ -1,7 +1,10 @@
 package co.edu.uniquindio.proyectofinal.domain.valueobject;
 
-import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
-import co.edu.uniquindio.proyectofinal.domain.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.Email;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.EstadoSolicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.TipoUser;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

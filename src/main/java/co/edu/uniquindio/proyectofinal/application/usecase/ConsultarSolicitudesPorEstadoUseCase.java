@@ -1,8 +1,8 @@
 package co.edu.uniquindio.proyectofinal.application.usecase;
 
-import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
-import co.edu.uniquindio.proyectofinal.domain.repository.SolicitudRepositorio;
-import co.edu.uniquindio.proyectofinal.domain.valueobject.EstadoSolicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.repository.SolicitudRepositorio;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.EstadoSolicitud;
 
 import java.util.List;
 

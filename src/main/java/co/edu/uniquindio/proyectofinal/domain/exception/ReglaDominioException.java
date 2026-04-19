@@ -1,9 +1,8 @@
 package co.edu.uniquindio.proyectofinal.domain.exception;
-/**
- * Excepción específica del dominio para violaciones de reglas de negocio.
- */
+
+// Excepción genérica para reglas de negocio
 public class ReglaDominioException extends RuntimeException {
-    public ReglaDominioException(String message) {
-        super(message);
+    public ReglaDominioException(String mensaje) {
+        super(mensaje);
     }
 }

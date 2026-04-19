@@ -1,8 +1,8 @@
 package co.edu.uniquindio.proyectofinal.application.usecase;
 
-import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
-import co.edu.uniquindio.proyectofinal.domain.entity.Usuario;
-import co.edu.uniquindio.proyectofinal.domain.repository.SolicitudRepositorio;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.model.repository.SolicitudRepositorio;
 
 
 public class CambiarEstadoUseCase {

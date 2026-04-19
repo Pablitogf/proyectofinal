@@ -2,12 +2,12 @@ package co.edu.uniquindio.proyectofinal.domain.valueobject;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.Prioridad;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.SugerenciaIA;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.TipoSolicitud;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import java.time.LocalDateTime;
-import co.edu.uniquindio.proyectofinal.domain.valueobject.Prioridad;
-import co.edu.uniquindio.proyectofinal.domain.valueobject.TipoSolicitud;
 
 class SugerenciaIATest {
 

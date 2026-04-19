@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyectofinal.domain.valueobject;
+package co.edu.uniquindio.proyectofinal.domain.model.valueobject;
 
 import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
 

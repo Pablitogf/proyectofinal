@@ -1,8 +1,8 @@
-package co.edu.uniquindio.proyectofinal.domain.service;
+package co.edu.uniquindio.proyectofinal.domain.model.service;
 
 
-import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
-import co.edu.uniquindio.proyectofinal.domain.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Usuario;
 import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
 
 /**

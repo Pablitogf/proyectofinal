@@ -1,10 +1,11 @@
-package co.edu.uniquindio.proyectofinal.domain.service;
+package co.edu.uniquindio.proyectofinal.domain.model.service;
 
-import co.edu.uniquindio.proyectofinal.domain.entity.Solicitud;
-import co.edu.uniquindio.proyectofinal.domain.entity.Usuario;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Solicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.entity.Usuario;
 import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
-import co.edu.uniquindio.proyectofinal.domain.valueobject.TipoSolicitud;
-import co.edu.uniquindio.proyectofinal.domain.valueobject.TipoUser;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.Prioridad;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.TipoSolicitud;
+import co.edu.uniquindio.proyectofinal.domain.model.valueobject.TipoUser;
 
 /**
  * Servicio de Dominio: ClasificacionSolicitudService
@@ -23,12 +24,12 @@ public class ClasificacionSolicitudService {
         solicitud.clasificar(prioridad, tipo, coordinador);
     }
 
-    private co.edu.uniquindio.proyectofinal.domain.valueobject.Prioridad determinarPrioridad(
+    private Prioridad determinarPrioridad(
             Solicitud solicitud, TipoSolicitud tipo) {
         // Regla de negocio: prioridad segun tipo
         if (TipoSolicitud.SUPLETORIO.equals(tipo)) {
-            return co.edu.uniquindio.proyectofinal.domain.valueobject.Prioridad.ALTA;
+            return Prioridad.ALTA;
         }
-        return co.edu.uniquindio.proyectofinal.domain.valueobject.Prioridad.MEDIA;
+        return Prioridad.MEDIA;
     }
 }
