@@ -12,7 +12,7 @@ public class UsuarioMapper {
 
         e.setId(u.getId());
         e.setNombre(u.getNombre());
-        e.setEmail(u.getEmail().getValor());
+        e.setEmail(u.getEmail().direccion());
         e.setRolUser(u.getRolUser().name());
 
         return e;

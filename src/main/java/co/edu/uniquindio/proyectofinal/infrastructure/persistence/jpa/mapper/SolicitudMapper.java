@@ -11,7 +11,7 @@ public class SolicitudMapper {
         SolicitudEntity e = new SolicitudEntity();
 
         e.setId(s.getId());
-        e.setCodigo(s.getCodigo().getValor());
+        e.setCodigo(s.getCodigo().valor());
         e.setDescripcion(s.getDescripcion());
         e.setEstado(s.getEstado().name());
 
@@ -39,7 +39,7 @@ public class SolicitudMapper {
             Usuario solicitante,
             Usuario responsable
     ) {
-        return Solicitud.reconstruirDesdeDB(
+        return Solicitud.Builder.reconstruirDesdeDB(
                 e.getId(),
                 new CodigoSolicitud(e.getCodigo()),
                 e.getDescripcion(),

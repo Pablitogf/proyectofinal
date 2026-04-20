@@ -1,6 +1,7 @@
 package co.edu.uniquindio.proyectofinal.domain.model.valueobject;
 
 import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;
+import lombok.Getter;
 
 /**
  * Value Object que representa un código único de solicitud.
