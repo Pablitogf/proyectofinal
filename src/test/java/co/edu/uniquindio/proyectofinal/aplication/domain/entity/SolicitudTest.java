@@ -128,6 +128,4 @@ class SolicitudTest {
 
         assertEquals(Prioridad.ALTA, solicitud.getPrioridad());
     }
-
-
 }
