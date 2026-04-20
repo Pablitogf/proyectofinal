@@ -237,6 +237,43 @@ public class Solicitud {
             return new Solicitud(this);
         }
 
+        public static Solicitud reconstruirDesdeDB(
+                String id,
+                CodigoSolicitud codigo,
+                String descripcion,
+                Usuario solicitante,
+                EstadoSolicitud estado,
+                Prioridad prioridad,
+                TipoSolicitud tipo,
+                Usuario responsable,
+                LocalDateTime fechaCreacion,
+                LocalDateTime fechaModificacion,
+                LocalDateTime fechaCierre
+        ) {
+            Solicitud s = new Builder()
+                    .descripcion(descripcion)
+                    .solicitante(solicitante)
+                    .build();
+
+            try {
+                java.lang.reflect.Field field = Solicitud.class.getDeclaredField("id");
+                field.setAccessible(true);
+                field.set(s, id);
+            } catch (Exception e) {
+                throw new RuntimeException("Error reconstruyendo Solicitud", e);
+            }
+
+            s.estado = estado;
+            s.prioridad = prioridad;
+            s.tipo = tipo;
+            s.responsable = responsable;
+
+            s.fechaModificacion = fechaModificacion;
+            s.fechaCierre = fechaCierre;
+
+            return s;
+        }
+
         public static Solicitud registrar(String descripcion, Usuario solicitante) {
             return new Builder()
                     .descripcion(descripcion)

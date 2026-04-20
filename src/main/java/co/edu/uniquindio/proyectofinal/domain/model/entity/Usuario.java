@@ -78,7 +78,25 @@ public class Usuario {
         Usuario usuario = (Usuario) o;
         return Objects.equals(id, usuario.id);
     }
+    public static Usuario reconstruirDesdeDB(
+            String id,
+            String nombre,
+            Email email,
+            TipoUser rol
+    ) {
+        Usuario u = new Usuario(nombre, email, rol);
 
+        // ⚠️ sobrescribir el id generado
+        try {
+            java.lang.reflect.Field field = Usuario.class.getDeclaredField("id");
+            field.setAccessible(true);
+            field.set(u, id);
+        } catch (Exception e) {
+            throw new RuntimeException("Error reconstruyendo Usuario", e);
+        }
+
+        return u;
+    }
     @Override
     public int hashCode() {
         return Objects.hash(id);
