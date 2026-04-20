@@ -19,11 +19,18 @@ public class UsuarioMapper {
     }
 
     public static Usuario toDomain(UsuarioEntity e) {
+        TipoUser rolSeguro;
+        try {
+            rolSeguro = TipoUser.valueOf(e.getRolUser());
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            rolSeguro = TipoUser.OTRO;
+        }
+
         return Usuario.reconstruirDesdeDB(
                 e.getId(),
                 e.getNombre(),
                 new Email(e.getEmail()),
-                TipoUser.valueOf(e.getRolUser())
+                rolSeguro
         );
     }
 }
