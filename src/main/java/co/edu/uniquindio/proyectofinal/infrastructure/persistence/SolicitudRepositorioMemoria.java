@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Repository 
+@Repository
 public class SolicitudRepositorioMemoria implements SolicitudRepositorio {
 
     private final Map<String, Solicitud> datos = new HashMap<>();
