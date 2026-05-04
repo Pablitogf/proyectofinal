@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyectofinal.infrastructure.rest.controller;
+package co.edu.uniquindio.proyectofinal.infrastructure.rest.controllers;
 
 import co.edu.uniquindio.proyectofinal.application.service.SecurityService;
 import co.edu.uniquindio.proyectofinal.infrastructure.rest.dto.LoginRequest;

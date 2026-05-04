@@ -1,10 +1,9 @@
-package co.edu.uniquindio.proyectofinal.aplication.infrastructure.rest.controller;
+package co.edu.uniquindio.proyectofinal.infrastructure.rest.controllers;
 
 
 import co.edu.uniquindio.proyectofinal.application.usecase.CerrarSolicitudUseCase;
 import co.edu.uniquindio.proyectofinal.application.usecase.CrearSolicitudUseCase;
 import co.edu.uniquindio.proyectofinal.application.usecase.ObtenerSolicitudUseCase;
-import co.edu.uniquindio.proyectofinal.infrastructure.rest.controller.SolicitudController;
 import co.edu.uniquindio.proyectofinal.infrastructure.rest.mapper.SolicitudMapper;
 import org.springframework.http.MediaType;
 import org.junit.jupiter.api.Test;

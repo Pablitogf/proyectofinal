@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyectofinal.aplication.domain.entity;
+package co.edu.uniquindio.proyectofinal.domain.entity;
 
 import co.edu.uniquindio.proyectofinal.domain.model.entity.Usuario;
 import co.edu.uniquindio.proyectofinal.domain.exception.ReglaDominioException;

@@ -2,7 +2,7 @@
      * Controlador REST para la gestión de solicitudes, encargado de adaptar las peticiones HTTP
      * al lenguaje del dominio y orquestar la ejecución mediante casos de uso.
      */
-    package co.edu.uniquindio.proyectofinal.infrastructure.rest.controller;
+    package co.edu.uniquindio.proyectofinal.infrastructure.rest.controllers;
 
     import co.edu.uniquindio.proyectofinal.application.dto.request.AsignarResponsableRequest;
     import co.edu.uniquindio.proyectofinal.application.dto.request.CambiarPrioridadRequest;

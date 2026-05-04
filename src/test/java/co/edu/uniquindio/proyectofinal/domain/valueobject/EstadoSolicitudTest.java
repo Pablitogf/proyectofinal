@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyectofinal.aplication.domain.valueobject;
+package co.edu.uniquindio.proyectofinal.domain.valueobject;
 
 import co.edu.uniquindio.proyectofinal.domain.model.entity.Solicitud;
 import co.edu.uniquindio.proyectofinal.domain.model.entity.Usuario;

@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyectofinal.aplication.domain.valueobject;
+package co.edu.uniquindio.proyectofinal.domain.valueobject;
 
 import static org.junit.jupiter.api.Assertions.*;
 

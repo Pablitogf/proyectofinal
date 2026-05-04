@@ -1,4 +1,4 @@
-package co.edu.uniquindio.proyectofinal.aplication.usecase;
+package co.edu.uniquindio.proyectofinal.application.usecase;
 
 import co.edu.uniquindio.proyectofinal.application.dto.request.CrearSolicitudRequest;
 import co.edu.uniquindio.proyectofinal.application.usecase.CrearSolicitudUseCase;
